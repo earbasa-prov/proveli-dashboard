@@ -1,0 +1,11 @@
+Order No,Channel,Ship By Date,Status,Total Items,Ship Date,Dept. Responsible,Reason
+ORD-001,4Ever Website,2025-03-01,INPROGRESS,5,2025-02-28,,,
+ORD-002,Addresses of Distinction,2025-03-02,ONHOLD,3,,,,
+ORD-003,Hallsigns.com,2025-02-28,INPROGRESS,8,2025-02-27,,,
+ORD-004,Amazon US,2025-03-05,UNASSIGNED,2,,,,
+ORD-005,Wayfair,2025-02-25,INPROGRESS,4,2025-02-24,,,
+ORD-006,4Ever Website,2025-02-20,INPROGRESS,6,2025-02-19,Ornamental,Wrong Item
+ORD-007,Etsy CurbImpressions,2025-03-03,INPROGRESS,1,,,,
+ORD-008,Walmart,2025-02-22,INPROGRESS,3,2025-02-22,Vinyl,Quality
+ORD-009,Addresses of Distinction,2025-02-15,INPROGRESS,10,2025-02-14,,,
+ORD-010,Real Estate Post,2025-03-04,UNASSIGNED,2,,,,
