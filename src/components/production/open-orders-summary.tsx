@@ -7,10 +7,11 @@ import { Package, Clock, AlertTriangle, ClockIcon } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 const CHANNEL_COLORS = ["#3b82f6", "#22c55e", "#f97316", "#ef4444", "#a855f7", "#ec4899"];
-const STATUS_COLORS = {
+const STATUS_COLORS: Record<string, string> = {
   INPROGRESS: "#22c55e",
   ONHOLD: "#f59e0b",
   UNASSIGNED: "#ef4444",
+  COMPLETED: "#64748b",
 };
 
 export function OpenOrdersSummary() {

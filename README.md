@@ -43,3 +43,25 @@ Optional: Total Quantity, Ship Date, Final Department, Defect Type, Reason
 ## Sample Data
 
 Use `public/sample-production-data.csv` for testing.
+
+## Deploy on Vercel + Neon
+
+### 1. Neon (PostgreSQL)
+
+1. Go to [console.neon.tech](https://console.neon.tech) and create a project
+2. Copy the connection string (Connection pooling recommended)
+3. Add to your `.env` locally:
+   ```bash
+   cp .env.example .env
+   # Edit .env and set DATABASE_URL=your_neon_connection_string
+   ```
+4. Test the connection: `GET /api/health` returns `{ ok: true, neon: true }` when connected
+
+### 2. Vercel
+
+1. Push your repo to GitHub
+2. Go to [vercel.com](https://vercel.com) → **Add New** → **Project**
+3. Import your `proveli-dashboard` (or `earbasa-prov/proveli-dashboard`) repo
+4. Add **Environment Variable**: `DATABASE_URL` = your Neon connection string
+5. Deploy — Vercel will build and host the app
+6. Optionally connect Neon project to Vercel via the [Vercel integration](https://vercel.com/integrations/neon) for automatic env sync
