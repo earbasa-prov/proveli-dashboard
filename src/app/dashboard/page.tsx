@@ -18,15 +18,59 @@ import { DepartmentPerformance } from "@/components/production/department-perfor
 import { Recommendations } from "@/components/production/recommendations";
 import { useProductionData } from "@/lib/production/production-data-context";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Save, FolderOpen, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
+import { format } from "date-fns";
 
 function ProductionDashboardContent() {
-  const { hasData, saveDashboard } = useProductionData();
+  const {
+    hasData,
+    saveDashboard,
+    savedDashboards,
+    fetchSavedDashboards,
+    loadSavedDashboard,
+  } = useProductionData();
+  const [saving, setSaving] = useState(false);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [savedValue, setSavedValue] = useState<string>("");
 
-  const handleSave = () => {
-    const filename = saveDashboard();
-    if (filename) toast.success(`Saved as ${filename}`);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const result = await saveDashboard();
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLoadSaved = async (id: string) => {
+    setLoadingId(id);
+    setSavedValue("");
+    try {
+      const result = await loadSavedDashboard(id);
+      if (result.success) {
+        toast.success("Saved dashboard loaded");
+        setSavedOpen(false);
+      } else {
+        toast.error(result.error ?? "Failed to load");
+      }
+    } finally {
+      setLoadingId(null);
+    }
   };
 
   if (!hasData) {
@@ -34,7 +78,43 @@ function ProductionDashboardContent() {
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-teal-800 dark:text-teal-200">Production Dashboard</h1>
-          <p className="text-slate-600 dark:text-slate-400">Upload order data first, then optionally defect data for defect KPIs</p>
+          <p className="text-slate-600 dark:text-slate-400">Upload order data first, or load a saved dashboard</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            open={savedOpen}
+            onOpenChange={(open) => {
+              setSavedOpen(open);
+              if (open) fetchSavedDashboards();
+            }}
+            value={savedValue}
+            onValueChange={(id) => {
+              if (id && id !== "__none") handleLoadSaved(id);
+            }}
+            disabled={loadingId !== null}
+          >
+            <SelectTrigger className="w-[200px]">
+              <FolderOpen className="mr-2 h-4 w-4 shrink-0" />
+              <SelectValue placeholder="Load saved dashboard" />
+            </SelectTrigger>
+            <SelectContent>
+              {savedDashboards.length === 0 ? (
+                <SelectItem value="__none" disabled>
+                  No saved dashboards
+                </SelectItem>
+              ) : (
+                savedDashboards.map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.dateRangeMin && d.dateRangeMax
+                      ? `${d.dateRangeMin} → ${d.dateRangeMax}`
+                      : format(new Date(d.savedAt), "PPp")}
+                    {" · "}
+                    {d.uniqueOrders ?? "—"} orders
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
         </div>
         <FileUploadZone />
         <DefectUploadZone />
@@ -50,10 +130,53 @@ function ProductionDashboardContent() {
           <p className="text-slate-600 dark:text-slate-400">Executive KPIs and backlog management</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSave}
+            disabled={saving || !hasData}
+          >
+            {saving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
             Save dashboard
           </Button>
+          <Select
+            open={savedOpen}
+            onOpenChange={(open) => {
+              setSavedOpen(open);
+              if (open) fetchSavedDashboards();
+            }}
+            value={savedValue}
+            onValueChange={(id) => {
+              if (id && id !== "__none") handleLoadSaved(id);
+            }}
+            disabled={loadingId !== null}
+          >
+            <SelectTrigger className="w-[160px]">
+              <FolderOpen className="mr-2 h-4 w-4 shrink-0" />
+              <SelectValue placeholder="Load saved" />
+            </SelectTrigger>
+            <SelectContent>
+              {savedDashboards.length === 0 ? (
+                <SelectItem value="__none" disabled>
+                  No saved dashboards
+                </SelectItem>
+              ) : (
+                savedDashboards.map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.dateRangeMin && d.dateRangeMax
+                      ? `${d.dateRangeMin} → ${d.dateRangeMax}`
+                      : format(new Date(d.savedAt), "PPp")}
+                    {" · "}
+                    {d.uniqueOrders ?? "—"} orders
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
           <FileUploadZone compact />
           <DefectUploadZone compact />
         </div>
